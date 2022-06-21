@@ -1,8 +1,8 @@
-## @yaatp/format-report-portal
+## @qavajs/format-report-portal
 This package is formatter for EPAM report portal
 
 ### install
-`npm install @yaatp/format-report-portal`
+`npm install @qavajs/format-report-portal`
 
 ### configuration
 
@@ -11,7 +11,7 @@ add formatter to config.js
 module.exports = {
     default: {
         format: [
-            '@yaatp/format-report-portal'
+            '@qavajs/format-report-portal'
         ],
         formatOptions: {
             rpConfig: {
