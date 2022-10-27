@@ -39,13 +39,13 @@ class RPFormatter extends Formatter {
         for (const featureName in this.features) {
             await this.rpClient.finishTestItem(this.features[featureName], { status: 'PASSED' }).promise;
         }
-
         await this.rpClient.finishLaunch(this.launchId, {
             endTime: this.rpClient.helpers.now()
         }).promise;
     }
 
     async finishTest(envelope) {
+        if (envelope.testCaseFinished.willBeRetried) return;
         const testCase = this.eventDataCollector.getTestCaseAttempt(envelope.testCaseFinished.testCaseStartedId);
         const featureName = testCase.gherkinDocument.feature.name;
         if (!this.features[featureName]) {
