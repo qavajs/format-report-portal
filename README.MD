@@ -20,7 +20,8 @@ module.exports = {
                 description: 'Description',
                 tags: ['Tag'],
                 project: 'your project',
-                launch: 'your launch name'
+                launch: 'your launch name',
+                mode: 'DEFAULT'
             },
         }
     }
