@@ -27,7 +27,8 @@ class RPFormatter extends Formatter {
             name: this.rpConfig.launch,
             startTime: this.rpClient.helpers.now(),
             description: this.rpConfig.description,
-            attributes: this.rpConfig.tags
+            attributes: this.rpConfig.tags,
+            mode: this.rpConfig.mode
         });
 
         this.launchId = launchObj.tempId;
