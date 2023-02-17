@@ -80,7 +80,9 @@ class RPFormatter extends Formatter {
                 ? {
                     name: 'attachment',
                     type: step.attachment[0].mediaType,
-                    content: step.attachment[0].body
+                    content: step.attachment[0].mediaType === 'text/plain'
+                        ? Buffer.from(step.attachment[0].body).toString('base64')
+                        : step.attachment[0].body,
                 }
                 : undefined;
             await this.rpClient.sendLog(testItem.tempId, {
