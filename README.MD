@@ -27,3 +27,8 @@ module.exports = {
     }
 }
 ```
+
+### run e2e test
+add token.json file with rp token and other config
+run
+`npm run test-e2e`
