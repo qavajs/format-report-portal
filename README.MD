@@ -15,6 +15,8 @@ module.exports = {
         ],
         formatOptions: {
             rpConfig: {
+                enable: true,
+                debug: false,
                 token: 'your token',
                 endpoint: 'https://your-rp-instance/api/v1',
                 description: 'Description',
