@@ -5,6 +5,8 @@ class RPFormatter extends Formatter {
 
     constructor(options) {
         super(options);
+        const rpEnable = options.parsedArgvOptions.rpConfig.enable;
+        if (rpEnable !== undefined && !rpEnable) return undefined;
         options.eventBroadcaster.on('envelope', this.processEnvelope.bind(this));
         this.rpConfig = options.parsedArgvOptions.rpConfig;
         this.rpClient = new RPClient(this.rpConfig);
@@ -29,7 +31,8 @@ class RPFormatter extends Formatter {
             startTime: this.rpClient.helpers.now(),
             description: this.rpConfig.description,
             attributes: this.rpConfig.tags,
-            mode: this.rpConfig.mode
+            mode: this.rpConfig.mode,
+            debug: this.rpConfig.debug
         });
 
         this.launchId = launchObj.tempId;
