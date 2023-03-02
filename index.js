@@ -10,6 +10,7 @@ class RPFormatter extends Formatter {
         options.eventBroadcaster.on('envelope', this.processEnvelope.bind(this));
         this.rpConfig = options.parsedArgvOptions.rpConfig;
         this.rpClient = new RPClient(this.rpConfig);
+        this.promiseQ = [];
     }
 
     async processEnvelope(envelope) {
@@ -36,10 +37,12 @@ class RPFormatter extends Formatter {
 
         this.launchId = launchObj.tempId;
         this.features = {};
+        this.promiseQ.push(launchObj.promise);
         await launchObj.promise;
     }
 
     async finishLaunch() {
+        await Promise.allSettled(this.promiseQ);
         for (const featureName in this.features) {
             await this.rpClient.finishTestItem(this.features[featureName], { status: 'PASSED' }).promise;
         }
@@ -63,6 +66,7 @@ class RPFormatter extends Formatter {
                 type: 'SUITE'
             }, this.launchId);
             this.features[featureName] = featureItem.tempId;
+            this.promiseQ.push(featureItem.promise);
             await featureItem.promise;
         }
 
@@ -74,36 +78,63 @@ class RPFormatter extends Formatter {
             startTime: this.rpClient.helpers.now(),
             type: 'STEP'
         }, this.launchId, featureTempId);
+        this.promiseQ.push(testItem.promise);
         await testItem.promise;
 
         //send steps
         const steps = this.getStepResults(testCase)
         for (const step of steps) {
-            const attachment = step.attachment && step.attachment[0]
-                ? {
-                    name: 'attachment',
-                    type: step.attachment[0].mediaType,
-                    content: step.attachment[0].mediaType === 'text/plain'
-                        ? Buffer.from(step.attachment[0].body).toString('base64')
-                        : step.attachment[0].body,
+            const nestedTestItem = this.rpClient.startTestItem({
+                description: 'test description',
+                name: this.getStepText(step, steps),
+                startTime: this.rpClient.helpers.now(),
+                type: 'STEP',
+                hasStats: false
+            }, this.launchId, testItem.tempId);
+            this.promiseQ.push(nestedTestItem.promise);
+            await nestedTestItem.promise;
+            if (step.result.message) {
+                const log = await this.rpClient.sendLog(nestedTestItem.tempId, {
+                    level: 'ERROR',
+                    message: this.getMessage(step),
+                    time: this.rpClient.helpers.now()
+                });
+                this.promiseQ.push(log.promise);
+                await log.promise;
+            }
+            if (step.attachment) {
+                for (const attachment of step.attachment) {
+                    const attachmentData = {
+                        name: 'attachment',
+                        type: attachment.mediaType,
+                        content: this.prepareContent(attachment),
+                    };
+                    const log = await this.rpClient.sendLog(nestedTestItem.tempId, {
+                        level: 'INFO',
+                        message: 'Attachment',
+                        time: this.rpClient.helpers.now()
+                    }, attachmentData);
+                    this.promiseQ.push(log.promise);
+                    await log.promise;
                 }
-                : undefined;
-            await this.rpClient.sendLog(testItem.tempId, {
-                level: step.result.status === Status.PASSED
-                    ? 'INFO'
-                    : 'ERROR',
-                message: this.getMessage(step),
-                time: this.rpClient.helpers.now()
-            }, attachment).promise
+            }
+            const nestedItemFinish = this.rpClient.finishTestItem(nestedTestItem.tempId, {
+                status: this.getStatus(step),
+                endTime: this.rpClient.helpers.now()
+            });
+            this.promiseQ.push(nestedItemFinish.promise);
+            await nestedItemFinish.promise;
         }
 
         //finish test item
         const status = Object.values(testCase.stepResults).some(step => step.status !== Status.PASSED)
             ? Status.FAILED.toLowerCase()
             : Status.PASSED.toLowerCase()
-        await this.rpClient.finishTestItem(testItem.tempId, {
+        const testItemFinish = this.rpClient.finishTestItem(testItem.tempId, {
             status
-        }).promise;
+        });
+        this.promiseQ.push(testItemFinish.promise);
+        await testItemFinish.promise;
     }
 
     getStepResults(testCase) {
@@ -114,8 +145,8 @@ class RPFormatter extends Formatter {
         }))
     }
 
-    getMessage(step) {
-        if (!step.pickle) return 'Hook';
+    getStepText(step, steps) {
+        if (!step.pickle) return this.hookKeyword(step, steps);
         const messageParts = [step.pickle.text];
         if (step.pickle.argument) {
             if (step.pickle.argument.dataTable) messageParts.push(
@@ -123,9 +154,23 @@ class RPFormatter extends Formatter {
             )
             if (step.pickle.argument.docString) messageParts.push(this.formatDocString(step.pickle.argument.docString))
         }
-        if (step.result.status === Status.FAILED) messageParts.push(step.result.message)
 
         return messageParts.join('\n')
+    }
+
+    hookKeyword(step, steps) {
+        const stepsBefore = steps.slice(0, steps.findIndex((element) => element === step));
+        return stepsBefore.every(element => element.pickle === undefined) ? 'Before' : 'After'
+    }
+    getMessage(step) {
+        return step.result.message
+    }
+
+    getStatus(step) {
+        if (step.result.status !== Status.PASSED) {
+            return Status.FAILED.toLowerCase()
+        }
+        return Status.PASSED.toLowerCase()
     }
 
     formatTable(dataTable) {
@@ -144,6 +189,13 @@ class RPFormatter extends Formatter {
     formatTags(tags) {
         return tags.map(tag => '<code>' + tag.name + '</code>').join('')
     }
+
+    prepareContent(attachment) {
+        return ['text/plain', 'application/json'].includes(attachment.mediaType)
+            ? Buffer.from(attachment.body).toString('base64')
+            : attachment.body
+    }
+
 }
 
 module.exports = RPFormatter

@@ -30,3 +30,8 @@ module.exports = {
 }
 ```
 Option `enable` is set to `true` even if it is not defined explicitly in rpConfig section.
+
+### run e2e test
+add token.json file with rp token and other config
+run
+`npm run test-e2e`
