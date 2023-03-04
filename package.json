@@ -1,6 +1,6 @@
 {
   "name": "@qavajs/format-report-portal",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "cucumber formatter for report portal",
   "main": "index.js",
   "scripts": {
@@ -23,9 +23,7 @@
   },
   "devDependencies": {
     "@cucumber/cucumber": "^9.0.0",
-    "@qavajs/cli": "^0.0.18",
-    "@qavajs/memory": "^1.2.0",
-    "@qavajs/po-playwright": "^0.0.7",
-    "@qavajs/steps-playwright": "^0.0.14"
+    "@qavajs/cli": "^0.0.19",
+    "@qavajs/memory": "^1.2.0"
   }
 }

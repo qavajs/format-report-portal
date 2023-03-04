@@ -104,18 +104,7 @@ class RPFormatter extends Formatter {
             }
             if (step.attachment) {
                 for (const attachment of step.attachment) {
-                    const attachmentData = {
-                        name: 'attachment',
-                        type: attachment.mediaType,
-                        content: this.prepareContent(attachment),
-                    };
-                    const log = await this.rpClient.sendLog(nestedTestItem.tempId, {
-                        level: 'INFO',
-                        message: 'Attachment',
-                        time: this.rpClient.helpers.now()
-                    }, attachmentData);
-                    this.promiseQ.push(log.promise);
-                    await log.promise;
+                    await this.sendAttachment(attachment, nestedTestItem);
                 }
             }
             const nestedItemFinish = this.rpClient.finishTestItem(nestedTestItem.tempId, {
@@ -167,10 +156,11 @@ class RPFormatter extends Formatter {
     }
 
     getStatus(step) {
-        if (step.result.status !== Status.PASSED) {
-            return Status.FAILED.toLowerCase()
+        switch (step.result.status) {
+            case Status.PASSED: return Status.PASSED.toLowerCase();
+            case Status.SKIPPED: return Status.SKIPPED.toLowerCase();
+            default: return Status.FAILED.toLowerCase()
         }
-        return Status.PASSED.toLowerCase()
     }
 
     formatTable(dataTable) {
@@ -196,6 +186,29 @@ class RPFormatter extends Formatter {
             : attachment.body
     }
 
+    async sendAttachment(attachment, testItem) {
+        let log;
+        if (attachment.mediaType === 'text/x.cucumber.log+plain') {
+            log = await this.rpClient.sendLog(testItem.tempId, {
+                level: 'INFO',
+                message: attachment.body,
+                time: this.rpClient.helpers.now()
+            });
+        } else {
+            const attachmentData = {
+                name: 'attachment',
+                type: attachment.mediaType,
+                content: this.prepareContent(attachment),
+            };
+            log = await this.rpClient.sendLog(testItem.tempId, {
+                level: 'INFO',
+                message: 'Attachment',
+                time: this.rpClient.helpers.now()
+            }, attachmentData);
+        }
+        this.promiseQ.push(log.promise);
+        await log.promise;
+    }
 }
 
 module.exports = RPFormatter
