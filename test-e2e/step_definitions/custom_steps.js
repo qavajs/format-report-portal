@@ -49,5 +49,13 @@ When('unsupported base64 attachment', function () {
     this.attach(require('../attachments/unsupportedBase64'), 'base64:application/zip');
 });
 
+When('passed step with log', function () {
+    this.log('some information in passed step')
+});
+When('failed step with log', function () {
+    this.log('some information in failed step')
+    throw new Error('failed step')
+});
+
 After(() => {});
 
