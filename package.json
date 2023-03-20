@@ -11,7 +11,8 @@
     "url": "git+https://github.com/qavajs/format-report-portal.git"
   },
   "authors": [
-    "Alexandr Galichenko"
+    "Alexandr Galichenko",
+    "Alexandr Legchilov"
   ],
   "license": "MIT",
   "bugs": {
