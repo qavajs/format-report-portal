@@ -108,7 +108,7 @@ class RPFormatter extends Formatter {
             }
             if (step.attachment) {
                 for (const attachment of step.attachment) {
-                    await this.sendAttachment(attachment, nestedTestItem, startTime, endTime);
+                    await this.sendAttachment(attachment, nestedTestItem, startTime);
                 }
             }
             const nestedItemFinish = this.rpClient.finishTestItem(nestedTestItem.tempId, {
