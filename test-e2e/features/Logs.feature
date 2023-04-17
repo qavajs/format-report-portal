@@ -5,3 +5,6 @@ Feature: Logs
 
   Scenario: scenario failed with logs
     And failed step with log
+
+  Scenario: long step
+    When long step
