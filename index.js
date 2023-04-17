@@ -87,7 +87,7 @@ class RPFormatter extends Formatter {
         const steps = this.getStepResults(testCase)
         for (const step of steps) {
             const duration = step.result.duration;
-            endTime = startTime + (duration.seconds * 1000) + Math.floor(duration.nanos / 1000);
+            endTime = startTime + (duration.seconds * 1_000) + Math.floor(duration.nanos / 1_000_000);
             const nestedTestItem = this.rpClient.startTestItem({
                 description: 'test description',
                 name: this.getStepText(step, steps),
