@@ -1,3 +1,6 @@
+## 0.0.8
+- :beetle: fixed sending duration
+
 ## 0.0.7
 - :beetle: implemented sending real step duration
 
