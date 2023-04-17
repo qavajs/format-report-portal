@@ -1,3 +1,6 @@
+## 0.0.7
+- :beetle: implemented sending real step duration
+
 ## 0.0.6
 - :rocket: enable support of cucumber logs
 

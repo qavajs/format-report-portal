@@ -57,5 +57,12 @@ When('failed step with log', function () {
     throw new Error('failed step')
 });
 
+When('long step', function () {
+    this.log('this is long step')
+    return new Promise(resolve => {
+        setTimeout(resolve, 5000)
+    })
+});
+
 After(() => {});
 

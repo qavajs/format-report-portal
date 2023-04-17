@@ -70,12 +70,14 @@ class RPFormatter extends Formatter {
             await featureItem.promise;
         }
 
-        const featureTempId = this.features[featureName]
+        const featureTempId = this.features[featureName];
+        let startTime = this.rpClient.helpers.now();
+        let endTime;
         // Start test item
         const testItem = this.rpClient.startTestItem({
             description: this.formatTags(testCase.pickle.tags),
             name: testCase.pickle.name,
-            startTime: this.rpClient.helpers.now(),
+            startTime,
             type: 'STEP'
         }, this.launchId, featureTempId);
         this.promiseQ.push(testItem.promise);
@@ -84,10 +86,12 @@ class RPFormatter extends Formatter {
         //send steps
         const steps = this.getStepResults(testCase)
         for (const step of steps) {
+            const duration = step.result.duration;
+            endTime = startTime + (duration.seconds * 1000) + Math.floor(duration.nanos / 1000);
             const nestedTestItem = this.rpClient.startTestItem({
                 description: 'test description',
                 name: this.getStepText(step, steps),
-                startTime: this.rpClient.helpers.now(),
+                startTime,
                 type: 'STEP',
                 hasStats: false
             }, this.launchId, testItem.tempId);
@@ -97,22 +101,23 @@ class RPFormatter extends Formatter {
                 const log = await this.rpClient.sendLog(nestedTestItem.tempId, {
                     level: 'ERROR',
                     message: this.getMessage(step),
-                    time: this.rpClient.helpers.now()
+                    time: startTime
                 });
                 this.promiseQ.push(log.promise);
                 await log.promise;
             }
             if (step.attachment) {
                 for (const attachment of step.attachment) {
-                    await this.sendAttachment(attachment, nestedTestItem);
+                    await this.sendAttachment(attachment, nestedTestItem, startTime);
                 }
             }
             const nestedItemFinish = this.rpClient.finishTestItem(nestedTestItem.tempId, {
                 status: this.getStatus(step),
-                endTime: this.rpClient.helpers.now()
+                endTime
             });
             this.promiseQ.push(nestedItemFinish.promise);
             await nestedItemFinish.promise;
+            startTime = endTime;
         }
 
         //finish test item
@@ -120,7 +125,8 @@ class RPFormatter extends Formatter {
             ? Status.FAILED.toLowerCase()
             : Status.PASSED.toLowerCase()
         const testItemFinish = this.rpClient.finishTestItem(testItem.tempId, {
-            status
+            status,
+            endTime
         });
         this.promiseQ.push(testItemFinish.promise);
         await testItemFinish.promise;
@@ -186,13 +192,13 @@ class RPFormatter extends Formatter {
             : attachment.body
     }
 
-    async sendAttachment(attachment, testItem) {
+    async sendAttachment(attachment, testItem, startTime) {
         let log;
         if (attachment.mediaType === 'text/x.cucumber.log+plain') {
             log = await this.rpClient.sendLog(testItem.tempId, {
                 level: 'INFO',
                 message: attachment.body,
-                time: this.rpClient.helpers.now()
+                time: startTime
             });
         } else {
             const attachmentData = {
@@ -203,7 +209,7 @@ class RPFormatter extends Formatter {
             log = await this.rpClient.sendLog(testItem.tempId, {
                 level: 'INFO',
                 message: 'Attachment',
-                time: this.rpClient.helpers.now()
+                time: startTime
             }, attachmentData);
         }
         this.promiseQ.push(log.promise);
