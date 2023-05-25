@@ -1,3 +1,6 @@
+## 0.9.0
+- :rocket: implemented capability to add attributes to test
+
 ## 0.0.8
 - :beetle: fixed sending duration
 

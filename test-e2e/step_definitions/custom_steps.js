@@ -1,6 +1,10 @@
 const { Given, When, Before, After } = require('@cucumber/cucumber');
 
-Before(() => {});
+Before(function() {
+    this.log('log from before');
+    this.log(`rp_attribute: random:${Date.now()}`);
+    this.log(`rp_attribute: fixed:42`);
+});
 Given('background', () => {});
 When('passed step', () => {});
 When('failed step', () => { throw new Error('failed step') });
