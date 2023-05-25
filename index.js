@@ -1,5 +1,9 @@
 const { Formatter, Status } = require('@cucumber/cucumber');
 const RPClient = require('@reportportal/client-javascript');
+
+const RP_ATTRIBUTE_PREFIX = /^rp_attribute:\s*/;
+const isAttribute = (attachment) => attachment.mediaType === 'text/x.cucumber.log+plain' && RP_ATTRIBUTE_PREFIX.test(attachment.body)
+
 class RPFormatter extends Formatter {
     launchId = null;
 
@@ -73,18 +77,25 @@ class RPFormatter extends Formatter {
         const featureTempId = this.features[featureName];
         let startTime = this.rpClient.helpers.now();
         let endTime;
-        // Start test item
+        const steps = this.getStepResults(testCase);
+        const attributes = steps.reduce((attachments, step) => {
+            const attrs = step.attachment
+                .filter(isAttribute)
+                .map(attachment => attachment.body.replace(RP_ATTRIBUTE_PREFIX, ''));
+            return [...new Set([...attachments, ...attrs])]
+        }, []);
+        // Start test
         const testItem = this.rpClient.startTestItem({
             description: this.formatTags(testCase.pickle.tags),
             name: testCase.pickle.name,
             startTime,
-            type: 'STEP'
+            type: 'STEP',
+            attributes
         }, this.launchId, featureTempId);
         this.promiseQ.push(testItem.promise);
         await testItem.promise;
 
         //send steps
-        const steps = this.getStepResults(testCase)
         for (const step of steps) {
             const duration = step.result.duration;
             endTime = startTime + (duration.seconds * 1_000) + Math.floor(duration.nanos / 1_000_000);
@@ -136,7 +147,7 @@ class RPFormatter extends Formatter {
         return testCase.testCase.testSteps.map(step => ({
             result: testCase.stepResults[step.id],
             pickle: testCase.pickle.steps.find(pickle => pickle.id === step.pickleStepId),
-            attachment: testCase.stepAttachments[step.id]
+            attachment: testCase.stepAttachments[step.id] ?? []
         }))
     }
 
@@ -194,6 +205,7 @@ class RPFormatter extends Formatter {
 
     async sendAttachment(attachment, testItem, startTime) {
         let log;
+        if (attachment.mediaType === 'text/x.cucumber.log+plain' && RP_ATTRIBUTE_PREFIX.test(attachment.body)) return;
         if (attachment.mediaType === 'text/x.cucumber.log+plain') {
             log = await this.rpClient.sendLog(testItem.tempId, {
                 level: 'INFO',
