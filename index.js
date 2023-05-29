@@ -1,5 +1,6 @@
 const { Formatter, Status } = require('@cucumber/cucumber');
 const RPClient = require('@reportportal/client-javascript');
+const { retry } = require('./utils');
 
 const RP_ATTRIBUTE_PREFIX = /^rp_attribute:\s*/;
 const isAttribute = (attachment) => attachment.mediaType === 'text/x.cucumber.log+plain' && RP_ATTRIBUTE_PREFIX.test(attachment.body)
@@ -60,18 +61,20 @@ class RPFormatter extends Formatter {
         const testCase = this.eventDataCollector.getTestCaseAttempt(envelope.testCaseFinished.testCaseStartedId);
         const featureName = testCase.gherkinDocument.feature.name;
         if (!this.features[featureName]) {
-            const featureItem = this.rpClient.startTestItem({
-                description:
-                    this.formatTags(testCase.gherkinDocument.feature.tags) +
-                    '\n' +
-                    testCase.gherkinDocument.feature.description,
-                name: featureName,
-                startTime: this.rpClient.helpers.now(),
-                type: 'SUITE'
-            }, this.launchId);
-            this.features[featureName] = featureItem.tempId;
-            this.promiseQ.push(featureItem.promise);
-            await featureItem.promise;
+            await retry(async () => {
+                const featureItem = this.rpClient.startTestItem({
+                    description:
+                        this.formatTags(testCase.gherkinDocument.feature.tags) +
+                        '\n' +
+                        testCase.gherkinDocument.feature.description,
+                    name: featureName,
+                    startTime: this.rpClient.helpers.now(),
+                    type: 'SUITE'
+                }, this.launchId);
+                this.features[featureName] = featureItem.tempId;
+                this.promiseQ.push(featureItem.promise);
+                await featureItem.promise;
+            }, this.rpConfig.retry);
         }
 
         const featureTempId = this.features[featureName];
@@ -85,50 +88,64 @@ class RPFormatter extends Formatter {
             return [...new Set([...attachments, ...attrs])]
         }, []);
         // Start test
-        const testItem = this.rpClient.startTestItem({
-            description: this.formatTags(testCase.pickle.tags),
-            name: testCase.pickle.name,
-            startTime,
-            type: 'STEP',
-            attributes
-        }, this.launchId, featureTempId);
-        this.promiseQ.push(testItem.promise);
-        await testItem.promise;
+        const testItem = await retry(async () => {
+            const testItem = this.rpClient.startTestItem({
+                description: this.formatTags(testCase.pickle.tags),
+                name: testCase.pickle.name,
+                startTime,
+                type: 'STEP',
+                attributes
+            }, this.launchId, featureTempId);
+            this.promiseQ.push(testItem.promise);
+            await testItem.promise;
+            return testItem;
+        }, this.rpConfig.retry);
 
         //send steps
         for (const step of steps) {
             const duration = step.result.duration;
             endTime = startTime + (duration.seconds * 1_000) + Math.floor(duration.nanos / 1_000_000);
-            const nestedTestItem = this.rpClient.startTestItem({
-                description: 'test description',
-                name: this.getStepText(step, steps),
-                startTime,
-                type: 'STEP',
-                hasStats: false
-            }, this.launchId, testItem.tempId);
-            this.promiseQ.push(nestedTestItem.promise);
-            await nestedTestItem.promise;
+
+            const nestedTestItem = await retry(async () => {
+                const nestedTestItem = this.rpClient.startTestItem({
+                    description: 'test description',
+                    name: this.getStepText(step, steps),
+                    startTime,
+                    type: 'STEP',
+                    hasStats: false
+                }, this.launchId, testItem.tempId);
+                this.promiseQ.push(nestedTestItem.promise);
+                await nestedTestItem.promise;
+                return nestedTestItem;
+            }, this.rpConfig.retry);
+
             if (step.result.message) {
-                const log = await this.rpClient.sendLog(nestedTestItem.tempId, {
-                    level: 'ERROR',
-                    message: this.getMessage(step),
-                    time: startTime
-                });
-                this.promiseQ.push(log.promise);
-                await log.promise;
+                await retry(async () => {
+                    const log = await this.rpClient.sendLog(nestedTestItem.tempId, {
+                        level: 'ERROR',
+                        message: this.getMessage(step),
+                        time: startTime
+                    });
+                    this.promiseQ.push(log.promise);
+                    await log.promise;
+                }, this.rpConfig.retry);
             }
             if (step.attachment) {
                 for (const attachment of step.attachment) {
-                    await this.sendAttachment(attachment, nestedTestItem, startTime);
+                    await retry(async () => {
+                        await this.sendAttachment(attachment, nestedTestItem, startTime);
+                    }, this.rpConfig.retry);
                 }
             }
-            const nestedItemFinish = this.rpClient.finishTestItem(nestedTestItem.tempId, {
-                status: this.getStatus(step),
-                endTime
-            });
-            this.promiseQ.push(nestedItemFinish.promise);
-            await nestedItemFinish.promise;
-            startTime = endTime;
+            await retry(async () => {
+                const nestedItemFinish = this.rpClient.finishTestItem(nestedTestItem.tempId, {
+                    status: this.getStatus(step),
+                    endTime
+                });
+                this.promiseQ.push(nestedItemFinish.promise);
+                await nestedItemFinish.promise;
+                startTime = endTime;
+            }, this.rpConfig.retry);
         }
 
         //finish test item

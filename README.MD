@@ -23,7 +23,8 @@ module.exports = {
                 tags: ['Tag'],
                 project: 'your project',
                 launch: 'your launch name',
-                mode: 'DEFAULT'
+                mode: 'DEFAULT',
+                retry: 1 // number of retries to send result to report portal (default - 1)
             },
         }
     }
