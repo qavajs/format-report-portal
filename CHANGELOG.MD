@@ -1,5 +1,6 @@
 ## 0.9.1
 - :beetle: added request retry in case of error
+- :rocket: TS rewrite
 
 ## 0.9.0
 - :rocket: implemented capability to add attributes to test

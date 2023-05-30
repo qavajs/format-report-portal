@@ -24,7 +24,7 @@ module.exports = {
                 project: 'your project',
                 launch: 'your launch name',
                 mode: 'DEFAULT',
-                retry: 1 // number of retries to send result to report portal (default - 1)
+                retry: 0 // number of retries to send result to report portal (default - 0)
             },
         }
     }
