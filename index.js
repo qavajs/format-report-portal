@@ -78,12 +78,20 @@ class RPFormatter extends Formatter {
         let startTime = this.rpClient.helpers.now();
         let endTime;
         const steps = this.getStepResults(testCase);
-        const attributes = steps.reduce((attachments, step) => {
-            const attrs = step.attachment
-                .filter(isAttribute)
-                .map(attachment => attachment.body.replace(RP_ATTRIBUTE_PREFIX, ''));
-            return [...new Set([...attachments, ...attrs])]
-        }, []);
+        const attributes = steps
+            .reduce((attachments, step) => {
+                const attrs = step.attachment
+                    .filter(isAttribute)
+                    .map(attachment => attachment.body.replace(RP_ATTRIBUTE_PREFIX, ''));
+                return [...new Set([...attachments, ...attrs])]
+            }, [])
+            .map(attachment => {
+                const [key, value] = attachment.split(':');
+                return key && value 
+                    ? { key, value, system: false }
+                    : { value: key, system: false }
+            });
+
         // Start test
         const testItem = this.rpClient.startTestItem({
             description: this.formatTags(testCase.pickle.tags),
@@ -168,6 +176,7 @@ class RPFormatter extends Formatter {
         const stepsBefore = steps.slice(0, steps.findIndex((element) => element === step));
         return stepsBefore.every(element => element.pickle === undefined) ? 'Before' : 'After'
     }
+    
     getMessage(step) {
         return step.result.message
     }
