@@ -1,4 +1,4 @@
-async function retry(fn, retries = 1) {
+async function retry(fn, retries = 1, ignoreErrors = false) {
     let currentTry = 0;
     let lastError;
     while (currentTry < retries) {
@@ -11,7 +11,9 @@ async function retry(fn, retries = 1) {
             lastError = err;
         }
     }
-    throw lastError;
+    if (!ignoreErrors) {
+        throw lastError;
+    }
 }
 
 module.exports = {

@@ -74,7 +74,7 @@ class RPFormatter extends Formatter {
                 this.features[featureName] = featureItem.tempId;
                 this.promiseQ.push(featureItem.promise);
                 await featureItem.promise;
-            }, this.rpConfig.retry);
+            }, this.rpConfig.retry, this.rpConfig.ignoreErrors);
         }
 
         const featureTempId = this.features[featureName];
@@ -90,7 +90,7 @@ class RPFormatter extends Formatter {
             }, [])
             .map(attachment => {
                 const [key, value] = attachment.split(':');
-                return key && value 
+                return key && value
                     ? { key, value, system: false }
                     : { value: key, system: false }
             });
@@ -107,7 +107,7 @@ class RPFormatter extends Formatter {
             this.promiseQ.push(testItem.promise);
             await testItem.promise;
             return testItem;
-        }, this.rpConfig.retry);
+        }, this.rpConfig.retry, this.rpConfig.ignoreErrors);
 
         //send steps
         for (const step of steps) {
@@ -125,7 +125,7 @@ class RPFormatter extends Formatter {
                 this.promiseQ.push(nestedTestItem.promise);
                 await nestedTestItem.promise;
                 return nestedTestItem;
-            }, this.rpConfig.retry);
+            }, this.rpConfig.retry, this.rpConfig.ignoreErrors);
 
             if (step.result.message) {
                 await retry(async () => {
@@ -136,13 +136,13 @@ class RPFormatter extends Formatter {
                     });
                     this.promiseQ.push(log.promise);
                     await log.promise;
-                }, this.rpConfig.retry);
+                }, this.rpConfig.retry, this.rpConfig.ignoreErrors);
             }
             if (step.attachment) {
                 for (const attachment of step.attachment) {
                     await retry(async () => {
                         await this.sendAttachment(attachment, nestedTestItem, startTime);
-                    }, this.rpConfig.retry);
+                    }, this.rpConfig.retry, this.rpConfig.ignoreErrors);
                 }
             }
             await retry(async () => {
@@ -153,7 +153,7 @@ class RPFormatter extends Formatter {
                 this.promiseQ.push(nestedItemFinish.promise);
                 await nestedItemFinish.promise;
                 startTime = endTime;
-            }, this.rpConfig.retry);
+            }, this.rpConfig.retry, this.rpConfig.ignoreErrors);
         }
 
         //finish test item
@@ -193,7 +193,7 @@ class RPFormatter extends Formatter {
         const stepsBefore = steps.slice(0, steps.findIndex((element) => element === step));
         return stepsBefore.every(element => element.pickle === undefined) ? 'Before' : 'After'
     }
-    
+
     getMessage(step) {
         return step.result.message
     }
