@@ -84,13 +84,20 @@ class RPFormatter extends Formatter {
                 .map(attachment => attachment.body.replace(RP_ATTRIBUTE_PREFIX, ''));
             return [...new Set([...attachments, ...attrs])]
         }, []);
+
+        // convert collected attrributes to a key/value paired map
+        const mappedAttributes = new Map();
+        attributes.map(item => {
+            mappedAttributes.set(...item.split(':'));
+        });
+
         // Start test
         const testItem = this.rpClient.startTestItem({
             description: this.formatTags(testCase.pickle.tags),
             name: testCase.pickle.name,
             startTime,
             type: 'STEP',
-            attributes
+            mappedAttributes
         }, this.launchId, featureTempId);
         this.promiseQ.push(testItem.promise);
         await testItem.promise;
@@ -168,6 +175,7 @@ class RPFormatter extends Formatter {
         const stepsBefore = steps.slice(0, steps.findIndex((element) => element === step));
         return stepsBefore.every(element => element.pickle === undefined) ? 'Before' : 'After'
     }
+    
     getMessage(step) {
         return step.result.message
     }
