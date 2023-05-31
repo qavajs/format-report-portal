@@ -98,7 +98,7 @@ class RPFormatter extends Formatter {
             name: testCase.pickle.name,
             startTime,
             type: 'STEP',
-            attributes: mappedAttributes
+            attributes
         }, this.launchId, featureTempId);
         this.promiseQ.push(testItem.promise);
         await testItem.promise;
