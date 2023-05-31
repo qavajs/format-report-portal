@@ -78,24 +78,19 @@ class RPFormatter extends Formatter {
         let startTime = this.rpClient.helpers.now();
         let endTime;
         const steps = this.getStepResults(testCase);
-        const attributes = steps.reduce((attachments, step) => {
-            const attrs = step.attachment
-                .filter(isAttribute)
-                .map(attachment => attachment.body.replace(RP_ATTRIBUTE_PREFIX, ''));
-            return [...new Set([...attachments, ...attrs])]
-        }, []);
-
-        // convert collected attrributes to the correct format for Report Portal
-        const mappedAttributes = attributes.reduce((listOfAttributes, item) => {
-            const splitItems = item.split(':');
-            const currentEntry = {
-                "key": splitItems[0],
-                "system": true,
-                "value": splitItems[1]
-            }
-            return [...new Set([...listOfAttributes, currentEntry])]
-        }, []);
-        console.log("String value: " + JSON.stringify(mappedAttributes));
+        const attributes = steps
+            .reduce((attachments, step) => {
+                const attrs = step.attachment
+                    .filter(isAttribute)
+                    .map(attachment => attachment.body.replace(RP_ATTRIBUTE_PREFIX, ''));
+                return [...new Set([...attachments, ...attrs])]
+            }, [])
+            .map(attachment => {
+                const [key, value] = attachment.split(':');
+                return key && value 
+                    ? { key, value, system: false }
+                    : { value: key, system: false }
+            });
 
         // Start test
         const testItem = this.rpClient.startTestItem({
