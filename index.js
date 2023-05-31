@@ -85,7 +85,7 @@ class RPFormatter extends Formatter {
             return [...new Set([...attachments, ...attrs])]
         }, []);
 
-        // convert collected attrributes to a key/value paired map
+        // convert collected attrributes to the correct format for Report Portal
         const mappedAttributes = attributes.reduce((listOfAttributes, item) => {
             const splitItems = item.split(':');
             const currentEntry = {
@@ -103,7 +103,7 @@ class RPFormatter extends Formatter {
             name: testCase.pickle.name,
             startTime,
             type: 'STEP',
-            attributes : mappedAttributes
+            attributes: mappedAttributes
         }, this.launchId, featureTempId);
         this.promiseQ.push(testItem.promise);
         await testItem.promise;
