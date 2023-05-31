@@ -86,10 +86,16 @@ class RPFormatter extends Formatter {
         }, []);
 
         // convert collected attrributes to a key/value paired map
-        const mappedAttributes = new Map();
-        attributes.map(item => {
-            mappedAttributes.set(...item.split(':'));
-        });
+        const mappedAttributes = attributes.reduce((listOfAttributes, item) => {
+            const splitItems = item.split(':');
+            const currentEntry = {
+                "key": splitItems[0],
+                "system": true,
+                "value": splitItems[1]
+            }
+            return [...new Set([...listOfAttributes, currentEntry])]
+        }, []);
+        console.log("String value: " + JSON.stringify(mappedAttributes));
 
         // Start test
         const testItem = this.rpClient.startTestItem({
@@ -97,7 +103,7 @@ class RPFormatter extends Formatter {
             name: testCase.pickle.name,
             startTime,
             type: 'STEP',
-            mappedAttributes
+            attributes : mappedAttributes
         }, this.launchId, featureTempId);
         this.promiseQ.push(testItem.promise);
         await testItem.promise;
