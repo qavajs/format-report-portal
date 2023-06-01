@@ -19,14 +19,22 @@ class RPFormatter extends Formatter {
     }
 
     async processEnvelope(envelope) {
-        if (envelope.testRunStarted) {
-            await this.startLaunch();
-        }
-        else if (envelope.testRunFinished) {
-            await this.finishLaunch();
-        }
-        else if (envelope.testCaseFinished) {
-            await this.finishTest(envelope);
+        try {
+            if (envelope.testRunStarted) {
+                await this.startLaunch();
+            }
+            else if (envelope.testRunFinished) {
+                await this.finishLaunch();
+            }
+            else if (envelope.testCaseFinished) {
+                await this.finishTest(envelope);
+            }
+        } catch (err) {
+            if (this.rpConfig.ignoreErrors) {
+                console.error(err);
+            } else {
+                throw err;
+            }
         }
     }
 
@@ -74,7 +82,7 @@ class RPFormatter extends Formatter {
                 this.features[featureName] = featureItem.tempId;
                 this.promiseQ.push(featureItem.promise);
                 await featureItem.promise;
-            }, this.rpConfig.retry, this.rpConfig.ignoreErrors);
+            }, this.rpConfig.retry);
         }
 
         const featureTempId = this.features[featureName];
@@ -107,7 +115,7 @@ class RPFormatter extends Formatter {
             this.promiseQ.push(testItem.promise);
             await testItem.promise;
             return testItem;
-        }, this.rpConfig.retry, this.rpConfig.ignoreErrors);
+        }, this.rpConfig.retry);
 
         //send steps
         for (const step of steps) {
@@ -125,7 +133,7 @@ class RPFormatter extends Formatter {
                 this.promiseQ.push(nestedTestItem.promise);
                 await nestedTestItem.promise;
                 return nestedTestItem;
-            }, this.rpConfig.retry, this.rpConfig.ignoreErrors);
+            }, this.rpConfig.retry);
 
             if (step.result.message) {
                 await retry(async () => {
@@ -136,13 +144,13 @@ class RPFormatter extends Formatter {
                     });
                     this.promiseQ.push(log.promise);
                     await log.promise;
-                }, this.rpConfig.retry, this.rpConfig.ignoreErrors);
+                }, this.rpConfig.retry);
             }
             if (step.attachment) {
                 for (const attachment of step.attachment) {
                     await retry(async () => {
                         await this.sendAttachment(attachment, nestedTestItem, startTime);
-                    }, this.rpConfig.retry, this.rpConfig.ignoreErrors);
+                    }, this.rpConfig.retry);
                 }
             }
             await retry(async () => {
@@ -153,7 +161,7 @@ class RPFormatter extends Formatter {
                 this.promiseQ.push(nestedItemFinish.promise);
                 await nestedItemFinish.promise;
                 startTime = endTime;
-            }, this.rpConfig.retry, this.rpConfig.ignoreErrors);
+            }, this.rpConfig.retry);
         }
 
         //finish test item

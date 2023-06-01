@@ -1,4 +1,4 @@
-async function retry(fn, retries = 1, ignoreErrors = false) {
+async function retry(fn, retries = 1) {
     let currentTry = 0;
     let lastError;
     while (currentTry < retries) {
@@ -10,9 +10,6 @@ async function retry(fn, retries = 1, ignoreErrors = false) {
             currentTry++;
             lastError = err;
         }
-    }
-    if (!ignoreErrors) {
-        throw lastError;
     }
 }
 
