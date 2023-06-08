@@ -1,3 +1,6 @@
+## 0.9.2
+- :beetle: added capability to ignore errors
+
 ## 0.9.1
 - :beetle: added request retry in case of error
 

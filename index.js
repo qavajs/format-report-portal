@@ -19,14 +19,22 @@ class RPFormatter extends Formatter {
     }
 
     async processEnvelope(envelope) {
-        if (envelope.testRunStarted) {
-            await this.startLaunch();
-        }
-        else if (envelope.testRunFinished) {
-            await this.finishLaunch();
-        }
-        else if (envelope.testCaseFinished) {
-            await this.finishTest(envelope);
+        try {
+            if (envelope.testRunStarted) {
+                await this.startLaunch();
+            }
+            else if (envelope.testRunFinished) {
+                await this.finishLaunch();
+            }
+            else if (envelope.testCaseFinished) {
+                await this.finishTest(envelope);
+            }
+        } catch (err) {
+            if (this.rpConfig.ignoreErrors) {
+                console.error(err);
+            } else {
+                throw err;
+            }
         }
     }
 
@@ -90,7 +98,7 @@ class RPFormatter extends Formatter {
             }, [])
             .map(attachment => {
                 const [key, value] = attachment.split(':');
-                return key && value 
+                return key && value
                     ? { key, value, system: false }
                     : { value: key, system: false }
             });
@@ -193,7 +201,7 @@ class RPFormatter extends Formatter {
         const stepsBefore = steps.slice(0, steps.findIndex((element) => element === step));
         return stepsBefore.every(element => element.pickle === undefined) ? 'Before' : 'After'
     }
-    
+
     getMessage(step) {
         return step.result.message
     }

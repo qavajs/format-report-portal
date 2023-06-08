@@ -11,7 +11,6 @@ async function retry(fn, retries = 1) {
             lastError = err;
         }
     }
-    throw lastError;
 }
 
 module.exports = {
