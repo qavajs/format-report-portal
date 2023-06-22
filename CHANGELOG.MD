@@ -1,3 +1,6 @@
+## 0.9.3
+- updated rp client version
+
 ## 0.9.2
 - :beetle: added capability to ignore errors
 
