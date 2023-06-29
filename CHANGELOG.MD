@@ -1,3 +1,6 @@
+## 0.9.4
+- fixed bug with finishing launch before all data sent
+
 ## 0.9.3
 - updated rp client version
 

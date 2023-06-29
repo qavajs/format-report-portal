@@ -21,13 +21,17 @@ class RPFormatter extends Formatter {
     async processEnvelope(envelope) {
         try {
             if (envelope.testRunStarted) {
-                await this.startLaunch();
+                const startLaunch = this.startLaunch();
+                this.promiseQ.push(startLaunch);
+                await startLaunch;
+            }
+            else if (envelope.testCaseFinished) {
+                const finishTest = this.finishTest(envelope)
+                this.promiseQ.push(finishTest);
+                await finishTest;
             }
             else if (envelope.testRunFinished) {
                 await this.finishLaunch();
-            }
-            else if (envelope.testCaseFinished) {
-                await this.finishTest(envelope);
             }
         } catch (err) {
             if (this.rpConfig.ignoreErrors) {
@@ -50,7 +54,6 @@ class RPFormatter extends Formatter {
 
         this.launchId = launchObj.tempId;
         this.features = {};
-        this.promiseQ.push(launchObj.promise);
         await launchObj.promise;
     }
 
@@ -80,7 +83,6 @@ class RPFormatter extends Formatter {
                     type: 'SUITE'
                 }, this.launchId);
                 this.features[featureName] = featureItem.tempId;
-                this.promiseQ.push(featureItem.promise);
                 await featureItem.promise;
             }, this.rpConfig.retry);
         }
@@ -112,7 +114,6 @@ class RPFormatter extends Formatter {
                 type: 'STEP',
                 attributes
             }, this.launchId, featureTempId);
-            this.promiseQ.push(testItem.promise);
             await testItem.promise;
             return testItem;
         }, this.rpConfig.retry);
@@ -130,7 +131,6 @@ class RPFormatter extends Formatter {
                     type: 'STEP',
                     hasStats: false
                 }, this.launchId, testItem.tempId);
-                this.promiseQ.push(nestedTestItem.promise);
                 await nestedTestItem.promise;
                 return nestedTestItem;
             }, this.rpConfig.retry);
@@ -142,7 +142,6 @@ class RPFormatter extends Formatter {
                         message: this.getMessage(step),
                         time: startTime
                     });
-                    this.promiseQ.push(log.promise);
                     await log.promise;
                 }, this.rpConfig.retry);
             }
@@ -158,7 +157,6 @@ class RPFormatter extends Formatter {
                     status: this.getStatus(step),
                     endTime
                 });
-                this.promiseQ.push(nestedItemFinish.promise);
                 await nestedItemFinish.promise;
                 startTime = endTime;
             }, this.rpConfig.retry);
@@ -172,7 +170,6 @@ class RPFormatter extends Formatter {
             status,
             endTime
         });
-        this.promiseQ.push(testItemFinish.promise);
         await testItemFinish.promise;
     }
 
@@ -258,7 +255,6 @@ class RPFormatter extends Formatter {
                 time: startTime
             }, attachmentData);
         }
-        this.promiseQ.push(log.promise);
         await log.promise;
     }
 }
