@@ -17,7 +17,7 @@ module.exports = {
             rpConfig: {
                 enable: true,
                 debug: false,
-                token: 'your token',
+                apiKey: 'your token',
                 endpoint: 'https://your-rp-instance/api/v1',
                 description: 'Description',
                 tags: ['Tag'],
