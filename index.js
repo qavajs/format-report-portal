@@ -16,10 +16,14 @@ class RPFormatter extends Formatter {
         this.rpConfig = options.parsedArgvOptions.rpConfig;
         this.rpClient = new RPClient(this.rpConfig);
         this.promiseQ = [];
+        this.stepDefinitions = {};
     }
 
     async processEnvelope(envelope) {
         try {
+            if (envelope.stepDefinition || envelope.hook) {
+                return this.readStepDefinition(envelope);
+            }
             if (envelope.testRunStarted) {
                 const startLaunch = this.startLaunch();
                 this.promiseQ.push(startLaunch);
@@ -40,6 +44,11 @@ class RPFormatter extends Formatter {
                 throw err;
             }
         }
+    }
+
+    readStepDefinition(stepDefinition) {
+        const definition = stepDefinition.stepDefinition ?? stepDefinition.hook;
+        this.stepDefinitions[definition.id] = definition;
     }
 
     async startLaunch() {
@@ -175,6 +184,8 @@ class RPFormatter extends Formatter {
 
     getStepResults(testCase) {
         return testCase.testCase.testSteps.map(step => ({
+            id: step.id,
+            stepDefinitionId: step.pickleStepId ?? step.hookId,
             result: testCase.stepResults[step.id],
             pickle: testCase.pickle.steps.find(pickle => pickle.id === step.pickleStepId),
             attachment: testCase.stepAttachments[step.id] ?? []
@@ -195,6 +206,8 @@ class RPFormatter extends Formatter {
     }
 
     hookKeyword(step, steps) {
+        const hook = this.stepDefinitions[step.stepDefinitionId];
+        if (hook?.name) return hook.name;
         const stepsBefore = steps.slice(0, steps.findIndex((element) => element === step));
         return stepsBefore.every(element => element.pickle === undefined) ? 'Before' : 'After'
     }

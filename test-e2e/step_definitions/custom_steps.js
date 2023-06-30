@@ -5,6 +5,7 @@ Before(function() {
     this.log(`rp_attribute: random:${Date.now()}`);
     this.log(`rp_attribute: fixed:42`);
 });
+Before({name: 'named before'}, function() {});
 Given('background', () => {});
 When('passed step', () => {});
 When('failed step', () => { throw new Error('failed step') });
@@ -68,5 +69,6 @@ When('long step', function () {
     })
 });
 
-After(() => {});
+After({name: 'named after'}, function() {});
 
+After(() => {});
