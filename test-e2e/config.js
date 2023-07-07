@@ -7,6 +7,7 @@ module.exports = {
         formatOptions: {
             rpConfig: require('./token.json')
         },
+        retry: 1,
         publishQuiet: true,
     }
 }
