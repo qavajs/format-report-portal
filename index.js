@@ -77,7 +77,6 @@ class RPFormatter extends Formatter {
     }
 
     async finishTest(envelope) {
-        if (envelope.testCaseFinished.willBeRetried) return;
         const testCase = this.eventDataCollector.getTestCaseAttempt(envelope.testCaseFinished.testCaseStartedId);
         const featureName = testCase.gherkinDocument.feature.name;
         if (!this.features[featureName]) {
@@ -115,13 +114,15 @@ class RPFormatter extends Formatter {
             });
 
         // Start test
+        const retryTest = Boolean(testCase.attempt);
         const testItem = await retry(async () => {
             const testItem = this.rpClient.startTestItem({
                 description: this.formatTags(testCase.pickle.tags),
                 name: testCase.pickle.name,
                 startTime,
                 type: 'STEP',
-                attributes
+                attributes,
+                retry: retryTest
             }, this.launchId, featureTempId);
             await testItem.promise;
             return testItem;

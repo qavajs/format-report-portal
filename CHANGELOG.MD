@@ -1,5 +1,6 @@
 ## 0.10.0
 - added support of named hooks
+- added retries
 
 ## 0.9.4
 - fixed bug with finishing launch before all data sent
