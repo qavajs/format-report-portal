@@ -75,7 +75,7 @@ class RPFormatter extends Formatter {
             endTime: this.rpClient.helpers.now()
         }).promise;
 
-        if (this.rpConfig.showLaunchURL) console.log(`RP launch link: ${(await launch).link}`);
+        if (this.rpConfig.showLaunchURL) console.log(`RP launch link: ${launch.link}`);
     }
 
     async finishTest(envelope) {
