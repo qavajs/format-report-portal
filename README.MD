@@ -26,7 +26,7 @@ module.exports = {
                 mode: 'DEFAULT',
                 retry: 1, // number of retries to send result to report portal (default - 1)
                 ignoreErrors: false // ignore RP errors (default: false),
-                showLaunchURL: true // log report portal link to launch
+                showLaunchURL: true // log report portal launch link
             },
         }
     }
