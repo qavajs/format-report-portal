@@ -71,9 +71,11 @@ class RPFormatter extends Formatter {
         for (const featureName in this.features) {
             await this.rpClient.finishTestItem(this.features[featureName], { status: 'PASSED' }).promise;
         }
-        await this.rpClient.finishLaunch(this.launchId, {
+        const launch = await this.rpClient.finishLaunch(this.launchId, {
             endTime: this.rpClient.helpers.now()
         }).promise;
+
+        if (this.rpConfig.showLaunchURL) console.log((await launch).link);
     }
 
     async finishTest(envelope) {
