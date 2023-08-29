@@ -1,3 +1,6 @@
+## 0.11.0
+- added flag to print launch url
+
 ## 0.10.0
 - added support of named hooks
 - added retries
