@@ -267,7 +267,7 @@ class RPFormatter extends Formatter {
             };
             log = await this.rpClient.sendLog(testItem.tempId, {
                 level: 'INFO',
-                message: 'Attachment',
+                message: attachment.fileName || 'Attachment',
                 time: startTime
             }, attachmentData);
         }
