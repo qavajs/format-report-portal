@@ -22,5 +22,8 @@ Feature: Attachments
   Scenario: multiple attachments
     When multiple attachments
 
+  Scenario: named attachment
+    When named attachment
+
   Scenario: unsupported attachments
     When unsupported base64 attachment

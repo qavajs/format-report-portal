@@ -1,3 +1,6 @@
+## 0.12.0
+- added support of named attachments
+
 ## 0.11.0
 - added flag to print launch url
 

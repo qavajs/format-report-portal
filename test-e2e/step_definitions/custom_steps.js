@@ -54,9 +54,17 @@ When('unsupported base64 attachment', function () {
     this.attach(require('../attachments/unsupportedBase64'), 'base64:application/zip');
 });
 
+When('named attachment', function () {
+    this.attach(require('../attachments/pngBase64.js'), {
+        mediaType: 'base64:image/png',
+        fileName: 'lorem ipsum'
+    });
+});
+
 When('passed step with log', function () {
     this.log('some information in passed step')
 });
+
 When('failed step with log', function () {
     this.log('some information in failed step')
     throw new Error('failed step')
