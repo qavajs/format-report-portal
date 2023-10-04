@@ -1,3 +1,6 @@
+## 0.13.0
+- changed an approach to distribute tags as attributes for suite and test entities
+
 ## 0.12.0
 - added support of named attachments
 
