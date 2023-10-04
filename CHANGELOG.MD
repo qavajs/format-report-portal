@@ -1,3 +1,7 @@
+## 0.13.2
+- updated version to 0.13.2
+- pull request template added to reduce human factor
+
 ## 0.13.1
 - fixed a missed bracket
 
