@@ -1,6 +1,6 @@
 {
   "name": "@qavajs/format-report-portal",
-  "version": "0.13.0",
+  "version": "0.13.2",
   "description": "cucumber formatter for report portal",
   "main": "index.js",
   "scripts": {
