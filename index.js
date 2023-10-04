@@ -84,6 +84,7 @@ class RPFormatter extends Formatter {
         if (!this.features[featureName]) {
             await retry(async () => {
                 const featureItem = this.rpClient.startTestItem({
+                    attributes: this.prepareTags(testCase.gherkinDocument.feature.tags),
                     description:
                         this.formatTags(testCase.gherkinDocument.feature.tags) +
                         '\n' +
@@ -123,7 +124,7 @@ class RPFormatter extends Formatter {
                 name: testCase.pickle.name,
                 startTime,
                 type: 'STEP',
-                attributes,
+                attributes: [...attributes, ...this.prepareTags(testCase.pickle.tags) ],
                 retry: retryTest
             }, this.launchId, featureTempId);
             await testItem.promise;
@@ -242,6 +243,9 @@ class RPFormatter extends Formatter {
 
     formatTags(tags) {
         return tags.map(tag => '<code>' + tag.name + '</code>').join('')
+        
+    prepareTags(tags) {
+        return tags.map(tag => tag.name)
     }
 
     prepareContent(attachment) {
