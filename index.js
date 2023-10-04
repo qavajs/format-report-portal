@@ -243,7 +243,8 @@ class RPFormatter extends Formatter {
 
     formatTags(tags) {
         return tags.map(tag => '<code>' + tag.name + '</code>').join('')
-        
+    }
+
     prepareTags(tags) {
         return tags.map(tag => tag.name)
     }
