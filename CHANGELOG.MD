@@ -1,3 +1,6 @@
+## 0.13.1
+- fixed a missed bracket
+
 ## 0.13.0
 - changed an approach to distribute tags as attributes for suite and test entities
 
