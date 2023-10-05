@@ -10,7 +10,7 @@ class RPFormatter extends Formatter {
 
     constructor(options) {
         super(options);
-        const rpEnable = options.parsedArgvOptions.rpConfig.enable;
+        const rpEnable = options.parsedArgvOptions?.rpConfig?.enable;
         if (rpEnable !== undefined && !rpEnable) return undefined;
         options.eventBroadcaster.on('envelope', this.processEnvelope.bind(this));
         this.rpConfig = options.parsedArgvOptions.rpConfig;
