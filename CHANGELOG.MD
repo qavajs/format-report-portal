@@ -1,3 +1,6 @@
+## 0.14.0
+- added config parameter for placing tags to attributes or description (default)
+
 ## 0.13.2
 - updated version to 0.13.2
 - pull request template added to reduce human factor
