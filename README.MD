@@ -45,8 +45,12 @@ Before(function () {
     this.log(`rp_attribute: random:${Date.now()}`); //dynamic attribute
 });
 ```
+### Run Unit Tests
+add token.json file with rp token and other config
+run
+`npm run test`
 
-### Run E2E Test
+### Run E2E Tests
 add token.json file with rp token and other config
 run
 `npm run test-e2e`

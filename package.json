@@ -4,7 +4,8 @@
   "description": "cucumber formatter for report portal",
   "main": "index.js",
   "scripts": {
-    "test:e2e": "qavajs run --config test-e2e/config.js"
+    "test:e2e": "qavajs run --config test-e2e/config.js",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -24,7 +25,8 @@
   },
   "devDependencies": {
     "@cucumber/cucumber": "^9.5.1",
-    "@qavajs/cli": "^0.28.0",
-    "@qavajs/memory": "^1.6.2"
+    "@qavajs/cli": "^0.29.0",
+    "@qavajs/memory": "^1.6.2",
+    "jest": "^29.7.0"
   }
 }
