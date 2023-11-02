@@ -1,7 +1,6 @@
-## 0.13.3
+## 0.14.0
 - updated rp-client package
-
-## 0.13.2
+- added config parameter for placing tags to attributes or description (default)
 - pull request template added to reduce human factor
 
 ## 0.13.1
