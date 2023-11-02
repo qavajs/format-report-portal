@@ -4,6 +4,7 @@ Before submitting this PR, please ensure that you have completed the following:
 - [ ] Updated the `packages.json` if necessary.
 - [ ] Checked that there aren't other open pull requests for the same issue/update.
 - [ ] Checked that your contribution follows the project's contribution guidelines.
+- [ ] Unit tests pass
 
 ## Description
 

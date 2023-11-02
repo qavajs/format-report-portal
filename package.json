@@ -21,11 +21,11 @@
   },
   "homepage": "https://github.com/qavajs/format-report-portal#readme",
   "dependencies": {
-    "@reportportal/client-javascript": "^5.0.13"
+    "@reportportal/client-javascript": "^5.0.14"
   },
   "devDependencies": {
-    "@cucumber/cucumber": "^9.5.1",
-    "@qavajs/cli": "^0.29.0",
+    "@cucumber/cucumber": "^10.0.1",
+    "@qavajs/cli": "^0.31.0",
     "@qavajs/memory": "^1.6.2",
     "jest": "^29.7.0"
   }
