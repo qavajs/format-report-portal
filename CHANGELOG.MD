@@ -1,5 +1,7 @@
+## 0.13.3
+- updated rp-client package
+
 ## 0.13.2
-- updated version to 0.13.2
 - pull request template added to reduce human factor
 
 ## 0.13.1
