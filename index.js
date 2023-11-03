@@ -56,7 +56,7 @@ class RPFormatter extends Formatter {
             name: this.rpConfig.launch,
             startTime: this.rpClient.helpers.now(),
             description: this.rpConfig.description,
-            attributes: this.rpConfig.tags,
+            attributes: this.rpConfig.tags?.filter(tag => tag),
             mode: this.rpConfig.mode,
             debug: this.rpConfig.debug
         });

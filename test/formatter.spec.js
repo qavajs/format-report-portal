@@ -1,16 +1,29 @@
 const RPFormatter = require('../index');
 const RPClient = require('@reportportal/client-javascript');
-jest.mock('@reportportal/client-javascript');
+const { EventEmitter } = require('node:events');
+jest.mock('@reportportal/client-javascript', () => {
+    return class RPMock {
+        startLaunch() {
+            return {
+                tempId: 42,
+                promise: Promise.resolve()
+            }
+        }
+        helpers = {
+            now() { return Date.now() }
+        }
+    }
+});
 
 const options = {
     colorFns: jest.fn(),
     cwd: '',
-    eventBroadcaster: {
-        on: jest.fn(),
-    },
+    eventBroadcaster: new EventEmitter(),
     eventDataCollector: {},
     log: jest.fn(),
-    parsedArgvOptions: {},
+    parsedArgvOptions: {
+        rpConfig: {}
+    },
     snippetBuilder: {},
     stream: {},
     cleanup: jest.fn(),
@@ -26,8 +39,25 @@ test('properties set in constructor', () => {
 });
 
 test('subscribes on events in constructor', () => {
+    const fnCall= jest.spyOn(options.eventBroadcaster, 'on').mock;
     const formatter = new RPFormatter(options);
-    const fnCall = options.eventBroadcaster.on.mock.calls[0]
-    expect(fnCall[0]).toEqual('envelope');
-    expect(fnCall[1]).toBeInstanceOf(Function);
+    expect(fnCall.calls[0][0]).toEqual('envelope');
+    expect(fnCall.calls[0][1]).toBeInstanceOf(Function);
 });
+
+test('attributes is cleaned up before sending', async () => {
+    jest.useFakeTimers();
+    options.parsedArgvOptions.rpConfig = {
+        description: 'Test',
+        tags: ['Test', null, undefined, ''],
+        project: 'test_project',
+        launch: 'test launch',
+    };
+    const formatter = new RPFormatter(options);
+    formatter.rpClient.helpers = { now() { return Date.now() } };
+    const startLaunch= jest.spyOn(formatter.rpClient, 'startLaunch').mock;
+    options.eventBroadcaster.emit('envelope', { testRunStarted: {} });
+    const [ callOptions ] = startLaunch.calls.pop();
+    expect(callOptions.attributes).toEqual(['Test']);
+});
+
