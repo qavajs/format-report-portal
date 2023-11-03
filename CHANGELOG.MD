@@ -1,5 +1,10 @@
-## 0.14.0
+## 0.14.2
+- fixed issue with undefined/null tags that prevents starting launch
+
+## 0.14.1
 - updated rp-client package
+
+## 0.14.0
 - added config parameter for placing tags to attributes or description (default)
 - pull request template added to reduce human factor
 
