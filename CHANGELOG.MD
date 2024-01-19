@@ -1,3 +1,6 @@
+## 0.14.3
+- bump dependencies to get rid of vulnerabilities
+
 ## 0.14.2
 - fixed issue with undefined/null tags that prevents starting launch
 
