@@ -265,6 +265,12 @@ class RPFormatter extends Formatter {
                 message: attachment.body,
                 time: startTime
             });
+        } else if (attachment.mediaType === 'text/x.response.json') {
+            log = await this.rpClient.sendLog(testItem.tempId, {
+                level: 'INFO',
+                message: this.responseBody(attachment.body),
+                time: startTime
+            });
         } else {
             const attachmentData = {
                 name: 'attachment',
@@ -278,6 +284,41 @@ class RPFormatter extends Formatter {
             }, attachmentData);
         }
         await log.promise;
+    }
+
+    renderHeaders(headers) {
+        return Object.entries(headers).map(([key, value]) => `${key}: ${value}`).join('\n');
+    }
+
+    responseBody(log) {
+        const payload = JSON.parse(log);
+        const isText = header => ['application/json', 'text/plain', 'text/html'].some(mime => (header ?? '').includes(mime));
+        const reqBody = isText(payload.request.headers['content-type'])
+            ? Buffer.from(payload.request.body, 'base64').toString()
+            : payload.request.body;
+        const resBody = isText(payload.response.headers['content-type'])
+            ? Buffer.from(payload.response.body, 'base64').toString()
+            : payload.request.body;
+        return `${payload.request.method} ${payload.request.url} - ${payload.response.status}
+**Request**
+body:
+\`\`\`
+${reqBody}
+\`\`\`
+headers:
+\`\`\`
+${this.renderHeaders(payload.request.headers)}
+\`\`\`
+**Response**
+body:
+\`\`\`
+${resBody}
+\`\`\`
+headers:
+\`\`\`
+${this.renderHeaders(payload.response.headers)}
+\`\`\`
+`
     }
 }
 

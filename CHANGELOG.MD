@@ -1,3 +1,6 @@
+## 0.15.0
+- added request/response renderer of internal mime type _text/x.response.json_
+
 ## 0.14.3
 - bump dependencies to get rid of vulnerabilities
 
