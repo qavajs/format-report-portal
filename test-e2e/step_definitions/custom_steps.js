@@ -77,6 +77,31 @@ When('long step', function () {
     })
 });
 
+When('step with response', function () {
+    const response = {
+        request: {
+            method: 'POST',
+            url: 'http://localhost:3000/#/feature/featurefc7c2610-bd2a-450d-b311-d5fafa543ef66',
+            body: 'cXdlcnR5MTIz',
+            headers: {
+                header1: 'value',
+                otherHeader1: 'value2',
+                anotherHeader1: 'value3',
+                'content-type': 'text/plain'
+            }
+        },
+        response: {
+            status: 200,
+            body: 'cXdlcnR5MTIzcmVzcG9uc2U=',
+            headers: {
+                headerresponse: 'value1',
+                'content-type': 'text/plain'
+            }
+        }
+    }
+    this.attach(JSON.stringify(response), 'text/x.response.json');
+});
+
 After({name: 'named after'}, function() {});
 
 After(() => {});
