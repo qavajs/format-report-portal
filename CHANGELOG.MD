@@ -1,3 +1,6 @@
+## 1.0.0
+- added `legacyTimeFormat` flag to support old versions of report portal
+
 ## 0.15.0
 - added request/response renderer of internal mime type _text/x.response.json_
 
