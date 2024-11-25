@@ -17,6 +17,9 @@ class RPFormatter extends Formatter {
         this.rpClient = new RPClient(this.rpConfig);
         this.promiseQ = [];
         this.stepDefinitions = {};
+        if (this.rpConfig.legacyTimeFormat) {
+            this.rpClient.helpers.now = () => { return Date.now() };
+        }
     }
 
     async processEnvelope(envelope) {
