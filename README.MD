@@ -28,7 +28,7 @@ module.exports = {
                 ignoreErrors: false, // ignore RP errors (default: false)
                 showLaunchURL: true, // log report portal launch link,
                 tagsAsAttributes: true, // (default: false - tags go to description)
-                legacyTimeFormat: true // (default: false - use legacy miliseconds precision instead of mictoseconds)
+                legacyTimeFormat: true // (default: false - use legacy milliseconds precision instead of microseconds)
             },
         }
     }
