@@ -1,3 +1,22 @@
+# Change Log
+
+All notable changes to the "@qavajs/format-report-portal" will be documented in this file.
+
+Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+
+:rocket: - new feature
+
+:beetle: - bugfix
+
+:x: - deprecation/removal
+
+:pencil: - chore
+
+:microscope: - experimental
+
+## 1.1.0
+- :rocket: updated report portal client
+
 ## 1.0.0
 - added `legacyTimeFormat` flag to support old versions of report portal
 
