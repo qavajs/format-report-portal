@@ -30,15 +30,15 @@ class RPFormatter extends Formatter {
             if (envelope.testRunStarted) {
                 const startLaunch = this.startLaunch();
                 this.promiseQ.push(startLaunch);
-                await startLaunch;
+                return await startLaunch;
             }
-            else if (envelope.testCaseFinished) {
+            if (envelope.testCaseFinished) {
                 const finishTest = this.finishTest(envelope)
                 this.promiseQ.push(finishTest);
-                await finishTest;
+                return await finishTest;
             }
-            else if (envelope.testRunFinished) {
-                await this.finishLaunch();
+            if (envelope.testRunFinished) {
+                return await this.finishLaunch();
             }
         } catch (err) {
             if (this.rpConfig.ignoreErrors) {
@@ -77,8 +77,6 @@ class RPFormatter extends Formatter {
         const launch = await this.rpClient.finishLaunch(this.launchId, {
             endTime: this.rpClient.helpers.now()
         }).promise;
-
-        if (this.rpConfig.showLaunchURL) console.log(`RP launch link: ${launch.link}`);
     }
 
     async finishTest(envelope) {

@@ -27,7 +27,6 @@ export default {
             mode: 'DEFAULT',
             retry: 1, // number of retries to send result to report portal (default - 1)
             ignoreErrors: false, // ignore RP errors (default: false)
-            showLaunchURL: true, // log report portal launch link,
             tagsAsAttributes: true, // (default: false - tags go to description)
             legacyTimeFormat: true // (default: false - use legacy milliseconds precision instead of microseconds)
         },
