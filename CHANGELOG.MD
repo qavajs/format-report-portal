@@ -14,6 +14,9 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 :microscope: - experimental
 
+## [1.2.1]
+- :rocket: updated report portal client
+
 ## [1.2.0]
 - :x: removed `showLaunchURL` flag in favor of built-in report portal client capability
 
