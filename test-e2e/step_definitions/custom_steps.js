@@ -73,7 +73,7 @@ When('failed step with log', function () {
 When('long step', function () {
     this.log('this is long step')
     return new Promise(resolve => {
-        setTimeout(resolve, 5000)
+        setTimeout(resolve, 2000)
     })
 });
 
@@ -104,4 +104,8 @@ When('step with response', function () {
 
 After({name: 'named after'}, function() {});
 
-After(() => {});
+After(async () => {
+    await new Promise(resolve => {
+        setTimeout(resolve, 2000)
+    });
+});
